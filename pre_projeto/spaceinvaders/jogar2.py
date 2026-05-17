@@ -24,6 +24,7 @@ def jogar(jx, jy, dificuldade):
     explosion_sound = Sound("explosion.mp3")
     time, time2 = 0 , 0
     intervalos_inimigas = 2 # Diminuído para 2 segundos para testar mais rápido
+    tempo_passado = 0
 
     #score basico
     acertos = 0
@@ -38,15 +39,16 @@ def jogar(jx, jy, dificuldade):
         dt = janela.delta_time()
         time += dt
         time2 += dt
+        tempo_passado += dt
         
         keyboard = janela.get_keyboard()
         if keyboard.key_pressed("ESC"):
             from menu import menu
             menu()
             run = False
-        if acertos == 5:
+        '''if acertos == 5:
             print("Aviões derrubados: ", acertos)
-            run = False
+            run = False'''
 
         # Movimentação horizontal da nave
         if keyboard.key_pressed("LEFT"):
@@ -89,7 +91,24 @@ def jogar(jx, jy, dificuldade):
         # Remoção segura de objetos fora da tela (List Comprehension) --nao
 
         tiros = [tiro for tiro in tiros if tiro.y >= -tiro.height]
-        inimigas = [n_inimiga for n_inimiga in inimigas if n_inimiga.y <= jy]
+        
+        for n_inimiga in inimigas:
+            if n_inimiga.y >= jy:
+                os.system('clear')
+                print("A nave conseguiu passar.\n Game Over")
+                print("Naves abatidas: ", acertos)
+                run = False
+
+
+
+        '''
+        for n_inimiga in inimigas:
+                    n_inimiga.y += vel_inimiga
+                    n_inimiga.draw()
+                for n_inimiga in inimigas:
+                    if n_inimiga.y==jy:      
+                        inimigas.remove(n_inimiga)'''
+
 
         #detectando colisoes
         for tiro in tiros:
@@ -105,6 +124,12 @@ def jogar(jx, jy, dificuldade):
                 os.system('clear')
                 print("NAVE ABATIDA!")
                 print("Aviões derrubados: ", acertos)
+        
+        #aumentar a velocidade do inimigo conforme o tempo passa
+        if tempo_passado > 2:
+            vel_inimiga+=10
+            tempo_passado=0
+
 
         nave.draw()
         janela.update()
